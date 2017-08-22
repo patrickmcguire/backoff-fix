@@ -4,13 +4,18 @@ import (
 	"net/http"
 	"bytes"
 	"log"
+	"fmt"
 )
 
-var base = "https://github.com/search"
+const base = "https://api.github.com/search"
+const contentType = "application/vnd.github.v3.text-match+json"
 
 func SearchGithub(search, username, personalKey string) (items []string) {
-	req, err := http.NewRequest("GET", "https://gitub.github.com", nil)
+	var url = base + "?q=" + search
+	fmt.Println(url)
+	req, err := http.NewRequest("GET", url, nil)
 	req.SetBasicAuth(username, personalKey)
+	req.Header.Add("Accept", contentType)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

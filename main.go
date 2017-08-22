@@ -13,7 +13,9 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	argsWithoutProg := os.Args[1:]
+
 	apiKey := os.Getenv("GITHUB_TOKEN")
-	fmt.Println(SearchGithub("", "patrickmcguire", apiKey))
+	fmt.Println(SearchGithub(argsWithoutProg[0], "patrickmcguire", apiKey))
 }
 
