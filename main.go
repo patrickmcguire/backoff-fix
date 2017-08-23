@@ -16,6 +16,8 @@ func main() {
 	argsWithoutProg := os.Args[1:]
 
 	apiKey := os.Getenv("GITHUB_TOKEN")
-	fmt.Println(SearchGithub(argsWithoutProg[0], "patrickmcguire", apiKey))
+	opts := make(map[string]string)
+
+	fmt.Println(SearchGithub(argsWithoutProg[0], "patrickmcguire", apiKey, opts))
 }
 
