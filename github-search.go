@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"net/url"
 	"bytes"
 	"log"
 	"fmt"
@@ -10,7 +11,17 @@ import (
 const base = "https://api.github.com/search"
 const contentType = "application/vnd.github.v3.text-match+json"
 
-func SearchGithub(search, username, personalKey string) (items []string) {
+func SearchGithub(
+	search string,
+	username string,
+	personalKey string,
+	queryParams map[string]string,
+) (items []string) {
+
+	values := url.Values{}
+	values.Set("q", search)
+	fmt.Println(values)
+
 	var url = base + "?q=" + search
 	fmt.Println(url)
 	req, err := http.NewRequest("GET", url, nil)
