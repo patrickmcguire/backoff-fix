@@ -1,43 +1,64 @@
 package main
 
 import (
-	"net/http"
-	"net/url"
-	"bytes"
 	"log"
-	"fmt"
+	"github.com/google/go-github/github"
+	"context"
+	"golang.org/x/oauth2"
+	"strings"
 )
 
-const base = "https://api.github.com/search"
-const contentType = "application/vnd.github.v3.text-match+json"
-
-func SearchGithub(
+func fetchMatches(
 	search string,
 	username string,
 	personalKey string,
-	queryParams map[string]string,
-) (items []string) {
+) (result *github.CodeSearchResult) {
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: personalKey},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
+	opts := &github.SearchOptions{TextMatch: true}
 
-	values := url.Values{}
-	values.Set("q", search)
-	fmt.Println(values)
+	results, _, err := client.Search.Code(context.Background(), search, opts)
 
-	var url = base + "?q=" + search
-	fmt.Println(url)
-	req, err := http.NewRequest("GET", url, nil)
-	req.SetBasicAuth(username, personalKey)
-	req.Header.Add("Accept", contentType)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(resp.Body)
-	s := buf.String() // Does a complete copy of the bytes in the buffer.
-	return []string{s}
+	return results
+}
+
+func selectExactMatches(result *github.CodeSearchResult, exactSearch string) []github.CodeResult {
+	var exactResults []github.CodeResult
+	codeResults := result.CodeResults
+	for _, result := range(codeResults) {
+		matches := result.TextMatches
+		shouldAdd := false
+		for _, match := range(matches) {
+			if (strings.Contains(*match.Fragment, exactSearch)) {
+				shouldAdd = true
+			}
+		}
+
+		if (shouldAdd) {
+			exactResults = append(exactResults, result)
+		}
+	}
+
+	return exactResults
+}
+
+func SearchGithub(
+	search string,
+	exactSearch string,
+	username string,
+	personalKey string,
+) (exactResults []github.CodeResult) {
+	results := fetchMatches(search, username, personalKey)
+	exactResults = selectExactMatches(results, exactSearch)
+	return exactResults
 }
 
