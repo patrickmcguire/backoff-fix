@@ -32,6 +32,7 @@ func fetchMatches(
 }
 
 func selectExactMatches(result *github.CodeSearchResult, exactSearch string) []github.CodeResult {
+	// this doesn't currently handle pagination, but the current result set is one page
 	var exactResults []github.CodeResult
 	codeResults := result.CodeResults
 	for _, result := range(codeResults) {
