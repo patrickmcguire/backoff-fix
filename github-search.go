@@ -2,25 +2,16 @@ package main
 
 import (
 	"log"
+	"strings"
 	"github.com/google/go-github/github"
 	"context"
-	"golang.org/x/oauth2"
-	"strings"
 )
 
 func fetchMatches(
+	client *github.Client,
 	search string,
-	username string,
-	personalKey string,
 ) (result *github.CodeSearchResult) {
-	ctx := context.Background()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: personalKey},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-	client := github.NewClient(tc)
 	opts := &github.SearchOptions{TextMatch: true}
-
 	results, _, err := client.Search.Code(context.Background(), search, opts)
 
 
@@ -53,12 +44,12 @@ func selectExactMatches(result *github.CodeSearchResult, exactSearch string) []g
 }
 
 func SearchGithub(
+	client *github.Client,
 	search string,
 	exactSearch string,
-	username string,
-	personalKey string,
 ) (exactResults []github.CodeResult) {
-	results := fetchMatches(search, username, personalKey)
+
+	results := fetchMatches(client, search)
 	exactResults = selectExactMatches(results, exactSearch)
 	return exactResults
 }

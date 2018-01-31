@@ -5,6 +5,9 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"github.com/google/go-github/github"
+	"context"
+	"golang.org/x/oauth2"
 )
 
 const searchText string = "\"backoff.Retry\" language:go"
@@ -15,9 +18,28 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	username := os.Getenv("USERNAME")
 	apiKey := os.Getenv("GITHUB_TOKEN")
-	results := SearchGithub(searchText, exactSearchText, username, apiKey)
-	fmt.Println(results)
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: apiKey},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
+
+	results := SearchGithub(client, searchText, exactSearchText)
+
+	for _, result := range(results) {
+		repo := result.Repository
+		ctx = context.Background()
+		repo, _, err = client.Repositories.GetByID(ctx, *repo.ID)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		err := FetchRepository(repo, "/tmp/gituhbrepos")
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
