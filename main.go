@@ -26,7 +26,10 @@ func main() {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	results := SearchGithub(client, searchText, exactSearchText)
+	results, err := SearchGithub(client, searchText, exactSearchText)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for _, result := range(results) {
 		repo := result.Repository
@@ -36,7 +39,7 @@ func main() {
 			fmt.Println(err)
 		}
 
-		err := FetchRepository(repo, "/tmp/gituhbrepos")
+		err := FetchRepository(repo, "/tmp/gituhbrepos/")
 		if err != nil {
 			fmt.Println(err)
 		}

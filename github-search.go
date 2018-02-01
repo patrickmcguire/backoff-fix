@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"strings"
 	"github.com/google/go-github/github"
 	"context"
@@ -10,23 +9,32 @@ import (
 func fetchMatches(
 	client *github.Client,
 	search string,
-) (result *github.CodeSearchResult) {
-	opts := &github.SearchOptions{TextMatch: true}
-	results, _, err := client.Search.Code(context.Background(), search, opts)
+) (results []github.CodeResult, err error) {
 
+	opts := &github.SearchOptions{TextMatch: true, ListOptions: github.ListOptions{Page: 0}}
+	for {
+		result, response, err := client.Search.Code(context.Background(), search, opts)
+		if err != nil {
+			return nil, err
+		}
 
-	if err != nil {
-		log.Fatal(err)
+		for _, codeResult := range(result.CodeResults) {
+			results = append(results, codeResult)
+		}
+
+		if response.NextPage == 0 {
+			break
+		}
+		opts.ListOptions.Page = response.NextPage
 	}
 
-	return results
+	return results, nil
 }
 
-func selectExactMatches(result *github.CodeSearchResult, exactSearch string) []github.CodeResult {
+func selectExactMatches(results []github.CodeResult, exactSearch string) []github.CodeResult {
 	// this doesn't currently handle pagination, but the current result set is one page
 	var exactResults []github.CodeResult
-	codeResults := result.CodeResults
-	for _, result := range(codeResults) {
+	for _, result := range(results) {
 		matches := result.TextMatches
 		shouldAdd := false
 		for _, match := range(matches) {
@@ -47,10 +55,13 @@ func SearchGithub(
 	client *github.Client,
 	search string,
 	exactSearch string,
-) (exactResults []github.CodeResult) {
+) (exactResults []github.CodeResult, err error) {
 
-	results := fetchMatches(client, search)
+	results, err := fetchMatches(client, search)
+	if err != nil {
+		return nil, err
+	}
 	exactResults = selectExactMatches(results, exactSearch)
-	return exactResults
+	return exactResults, nil
 }
 
