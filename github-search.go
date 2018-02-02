@@ -11,7 +11,7 @@ func fetchMatches(
 	search string,
 ) (results []github.CodeResult, err error) {
 
-	opts := &github.SearchOptions{TextMatch: true, ListOptions: github.ListOptions{Page: 0}}
+	opts := &github.SearchOptions{TextMatch: true, ListOptions: github.ListOptions{Page: 0, PerPage: 100}}
 	for {
 		result, response, err := client.Search.Code(context.Background(), search, opts)
 		if err != nil {
