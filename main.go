@@ -14,6 +14,8 @@ const searchText string = "\"backoff.Retry\" language:go"
 const exactSearchText string = "backoff.Retry"
 
 func main() {
+	outPath := os.Args[1]
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -39,7 +41,7 @@ func main() {
 			fmt.Println(err)
 		}
 
-		err := FetchRepository(repo, "/tmp/gituhbrepos/")
+		err := FetchRepository(repo, outPath)
 		if err != nil {
 			fmt.Println(err)
 		}
