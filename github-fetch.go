@@ -8,15 +8,15 @@ import (
 	"strconv"
 )
 
-func FetchRepository(repo * github.Repository, location string) (err error) {
+func FetchRepository(repo * github.Repository, location string) (repoDir string, err error) {
 	cloneURL := repo.GetGitURL()
-	path := location + strconv.FormatInt(*repo.ID, 10)
-	fmt.Println(path)
-	_, err = git.PlainClone(path, false, &git.CloneOptions{
+	repoDir = location + strconv.FormatInt(*repo.ID, 10)
+	fmt.Println(repoDir)
+	_, err = git.PlainClone(repoDir, false, &git.CloneOptions{
 		URL: cloneURL,
 		Progress: os.Stdout,
 	})
 
-	return err
+	return repoDir, err
 }
 

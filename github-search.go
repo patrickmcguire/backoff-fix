@@ -4,6 +4,7 @@ import (
 	"strings"
 	"github.com/google/go-github/github"
 	"context"
+	"time"
 )
 
 func fetchMatches(
@@ -26,6 +27,7 @@ func fetchMatches(
 			break
 		}
 		opts.ListOptions.Page = response.NextPage
+		time.Sleep(5000 * time.Millisecond)
 	}
 
 	return results, nil

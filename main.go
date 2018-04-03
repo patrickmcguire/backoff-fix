@@ -41,7 +41,12 @@ func main() {
 			fmt.Println(err)
 		}
 
-		err := FetchRepository(repo, outPath)
+		repoDir, err := FetchRepository(repo, outPath)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		err = ExamineRepository(repoDir)
 		if err != nil {
 			fmt.Println(err)
 		}
