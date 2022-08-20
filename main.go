@@ -1,13 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/google/go-github/v46/github"
 	"github.com/joho/godotenv"
+	"golang.org/x/oauth2"
 	"log"
 	"os"
-	"github.com/google/go-github/github"
-	"context"
-	"golang.org/x/oauth2"
 )
 
 const searchText string = "\"backoff.Retry\" language:go"
@@ -33,23 +33,28 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for _, result := range(results) {
+	for _, result := range results {
 		repo := result.Repository
 		ctx = context.Background()
 		repo, _, err = client.Repositories.GetByID(ctx, *repo.ID)
 		if err != nil {
 			fmt.Println(err)
+		} else {
+			fmt.Println("got by id", *repo.ID)
 		}
 
 		repoDir, err := FetchRepository(repo, outPath)
 		if err != nil {
 			fmt.Println(err)
+		} else {
+			fmt.Println("got repo")
 		}
 
 		err = ExamineRepository(repoDir)
 		if err != nil {
 			fmt.Println(err)
+		} else {
+			fmt.Println("examined")
 		}
 	}
 }
-

@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v46/github"
 	"math"
 	"strings"
 	"time"
@@ -12,7 +12,7 @@ import (
 func fetchMatches(
 	client *github.Client,
 	search string,
-) (results []github.CodeResult, err error) {
+) (results []*github.CodeResult, err error) {
 
 	opts := &github.SearchOptions{TextMatch: true, ListOptions: github.ListOptions{Page: 0, PerPage: 100}}
 	for {
@@ -54,9 +54,9 @@ func fetchMatches(
 	return results, nil
 }
 
-func selectExactMatches(results []github.CodeResult, exactSearch string) []github.CodeResult {
+func selectExactMatches(results []*github.CodeResult, exactSearch string) []*github.CodeResult {
 	// this doesn't currently handle pagination, but the current result set is one page
-	var exactResults []github.CodeResult
+	var exactResults []*github.CodeResult
 	for _, result := range results {
 		matches := result.TextMatches
 		shouldAdd := false
@@ -74,17 +74,11 @@ func selectExactMatches(results []github.CodeResult, exactSearch string) []githu
 	return exactResults
 }
 
-func backoff(attemptNumber int) {
-	sleepTime := math.Pow(1.5, float64(attemptNumber)) * 5 * float64(time.Second) * 10
-	fmt.Println(sleepTime)
-	time.Sleep(time.Duration(sleepTime))
-}
-
 func SearchGithub(
 	client *github.Client,
 	search string,
 	exactSearch string,
-) (exactResults []github.CodeResult, err error) {
+) (exactResults []*github.CodeResult, err error) {
 
 	results, err := fetchMatches(client, search)
 	if err != nil {
