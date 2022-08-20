@@ -20,14 +20,22 @@ func fetchMatches(
 		if firstErr != nil {
 			retryCount := 1
 			for retryCount < 15 {
-				backoff(retryCount)
+				sleepTime := math.Pow(1.5, float64(retryCount)) * 5 * float64(time.Second)
+				fmt.Println(sleepTime)
+				time.Sleep(time.Duration(sleepTime))
 				result, response, err = client.Search.Code(context.Background(), search, opts)
 				if err == nil {
+					fmt.Println("wooh nil")
 					break
+				} else {
+					fmt.Println("Attempt", retryCount, "failed with", err)
 				}
+				retryCount += 1
 			}
 
-			return results, firstErr
+			if retryCount == 15 {
+				return results, firstErr
+			}
 		}
 
 		for _, codeResult := range result.CodeResults {
@@ -67,9 +75,9 @@ func selectExactMatches(results []github.CodeResult, exactSearch string) []githu
 }
 
 func backoff(attemptNumber int) {
-	sleepTime := math.Pow(1.5, (float64(attemptNumber))) * 5000
-	rounded := math.Round(sleepTime)
-	time.Sleep(time.Duration(rounded))
+	sleepTime := math.Pow(1.5, float64(attemptNumber)) * 5 * float64(time.Second) * 10
+	fmt.Println(sleepTime)
+	time.Sleep(time.Duration(sleepTime))
 }
 
 func SearchGithub(
