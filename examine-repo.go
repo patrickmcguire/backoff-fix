@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"go/parser"
 	"go/token"
-	"fmt"
 )
 
 func ExamineRepository(location string) (err error) {
