@@ -69,6 +69,7 @@ func selectExactMatches(results []*github.CodeResult, exactSearch string) []*git
 		if shouldAdd {
 			exactResults = append(exactResults, result)
 		}
+		fmt.Println(shouldAdd)
 	}
 
 	return exactResults
